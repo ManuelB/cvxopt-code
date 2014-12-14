@@ -1,0 +1,288 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      9459,        279]
+NotebookOptionsPosition[      8507,        243]
+NotebookOutlinePosition[      8929,        259]
+CellTagsIndexPosition[      8886,        256]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+Solves the LP problem defined by:
+min(c) s.t.
+G.x < h
+lb <= x <= ub\
+\>", "Subtitle",
+ CellChangeTimes->{{3.625237179221569*^9, 3.6252371831826086`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"myRootDir", "=", 
+  RowBox[{"NotebookDirectory", "[", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"myProblemId", " ", "=", " ", 
+  RowBox[{"ToString", "[", "\"\<9\>\"", "]"}]}]}], "Input",
+ CellChangeTimes->{{3.6250643853360825`*^9, 3.6250643934480968`*^9}, 
+   3.6250645690752044`*^9, {3.625064861950119*^9, 3.625064862886121*^9}, {
+   3.6252318149707756`*^9, 3.6252318150507812`*^9}, {3.625232074329481*^9, 
+   3.6252320744104853`*^9}, {3.6252370726284933`*^9, 3.6252370730984974`*^9}}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\\"\>"], "Output",
+ CellChangeTimes->{
+  3.6250645263759303`*^9, 3.625064569980006*^9, 3.6250648652885246`*^9, 
+   3.6252293312633343`*^9, {3.625231803460969*^9, 3.625231819116067*^9}, 
+   3.6252320780826693`*^9, 3.625232119982772*^9, 3.625237211597893*^9}],
+
+Cell[BoxData["\<\"9\"\>"], "Output",
+ CellChangeTimes->{
+  3.6250645263759303`*^9, 3.625064569980006*^9, 3.6250648652885246`*^9, 
+   3.6252293312633343`*^9, {3.625231803460969*^9, 3.625231819116067*^9}, 
+   3.6252320780826693`*^9, 3.625232119982772*^9, 3.625237211597893*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   StyleBox["c", "MR"], 
+   StyleBox["=", "MR"], 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<c\>\"", ",", "myProblemId", ",", 
+        "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"n", "=", 
+   RowBox[{"Length", "[", "c", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"G", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<G\>\"", ",", "myProblemId", ",", 
+        "\"\<.csv\>\""}], "}"}], "]"}], ",", "\"\<CSV\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"h", 
+   StyleBox["=", "MR"], 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<h\>\"", ",", "myProblemId", ",", 
+        "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"hCoeff", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"h", "[", 
+        RowBox[{"[", "i", "]"}], "]"}], ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", 
+       RowBox[{"Length", "[", "h", "]"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["lb", "MR"], 
+   StyleBox["=", "MR"], 
+   RowBox[{
+    RowBox[{"Import", "[", 
+     RowBox[{
+      RowBox[{"StringJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+        "myRootDir", ",", " ", "\"\<lb\>\"", ",", "myProblemId", ",", 
+         "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}], "/.", 
+    RowBox[{"{", 
+     RowBox[{"\"\<NaN\>\"", "\[Rule]", "9999999"}], "}"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   StyleBox["ub", "MR"], 
+   StyleBox["=", "MR"], 
+   RowBox[{
+    RowBox[{"Import", "[", 
+     RowBox[{
+      RowBox[{"StringJoin", "[", 
+       RowBox[{"{", 
+        RowBox[{
+        "myRootDir", ",", " ", "\"\<ub\>\"", ",", "myProblemId", ",", 
+         "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}], "/.", 
+    RowBox[{"{", 
+     RowBox[{"\"\<NaN\>\"", "\[Rule]", 
+      RowBox[{"+", 
+       StyleBox["99999999", "MR"]}]}], "}"}]}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"variablesBounds", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"lb", "[", 
+        RowBox[{"[", "i", "]"}], "]"}], ",", " ", 
+       RowBox[{"ub", "[", 
+        RowBox[{"[", "i", "]"}], "]"}]}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", "n"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", "n"}], "Input",
+ CellChangeTimes->{{3.6250644083305225`*^9, 3.6250644900434666`*^9}, 
+   3.6250645476231675`*^9, {3.625064908755801*^9, 3.6250649106434045`*^9}, {
+   3.625064946445467*^9, 3.625064960611292*^9}, {3.6250650271922092`*^9, 
+   3.625065031591417*^9}, {3.625237076729534*^9, 3.625237096201729*^9}, {
+   3.6252371727105036`*^9, 3.625237196165739*^9}, {3.6258435415409193`*^9, 
+   3.6258435418109193`*^9}}],
+
+Cell[BoxData["8"], "Output",
+ CellChangeTimes->{{3.6250645312475395`*^9, 3.625064553598778*^9}, 
+   3.62506486828373*^9, 3.625064914574611*^9, {3.625064946960268*^9, 
+   3.6250649618904943`*^9}, {3.6250650177697926`*^9, 3.6250650332138195`*^9}, 
+   3.625229331422366*^9, {3.6252318036209803`*^9, 3.625231819266077*^9}, 
+   3.6252320782326765`*^9, 3.6252321201427794`*^9, 3.625237215928937*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"mySol", "=", 
+  RowBox[{"LinearProgramming", "[", 
+   RowBox[{"c", ",", "G", ",", "hCoeff", ",", " ", "variablesBounds"}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"myValue", " ", "=", " ", 
+  RowBox[{"c", ".", "mySol"}]}], "\[IndentingNewLine]", 
+ RowBox[{"Max", "[", 
+  RowBox[{
+   RowBox[{"G", ".", "mySol"}], " ", "-", " ", "h"}], "]"}]}], "Input",
+ CellChangeTimes->{{3.6252372029158063`*^9, 3.6252372912446947`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "0.`", ",", "40.`", ",", "0.`", ",", "42875.00000000001`", ",", 
+   "50.00000000000001`", ",", "50.`", ",", "100000.`", ",", "0.`"}], 
+  "}"}]], "Output",
+ CellChangeTimes->{
+  3.6250648868165627`*^9, 3.6250650214357986`*^9, 3.625229331452372*^9, {
+   3.6252318036309805`*^9, 3.625231819276078*^9}, 3.625232078392685*^9, 
+   3.625232120174781*^9, {3.625237219501974*^9, 3.6252372989657717`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"-", "143015.`"}]], "Output",
+ CellChangeTimes->{
+  3.6250648868165627`*^9, 3.6250650214357986`*^9, 3.625229331452372*^9, {
+   3.6252318036309805`*^9, 3.625231819276078*^9}, 3.625232078392685*^9, 
+   3.625232120174781*^9, {3.625237219501974*^9, 3.6252372989657717`*^9}}],
+
+Cell[BoxData["1.4551915228366852`*^-11"], "Output",
+ CellChangeTimes->{
+  3.6250648868165627`*^9, 3.6250650214357986`*^9, 3.625229331452372*^9, {
+   3.6252318036309805`*^9, 3.625231819276078*^9}, 3.625232078392685*^9, 
+   3.625232120174781*^9, {3.625237219501974*^9, 3.6252372989657717`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{"StringJoin", "[", 
+    RowBox[{
+    "myRootDir", ",", " ", "\"\<value\>\"", ",", "myProblemId", ",", 
+     "\"\<.txt\>\""}], "]"}], ",", "myValue", " ", ",", " ", 
+   "\"\<Lines\>\""}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{"StringJoin", "[", 
+    RowBox[{
+    "myRootDir", ",", " ", "\"\<sol\>\"", ",", "myProblemId", ",", 
+     "\"\<.txt\>\""}], "]"}], ",", "mySol", " ", ",", " ", "\"\<Lines\>\""}], 
+  "]"}]}], "Input",
+ CellChangeTimes->{{3.6250650826347065`*^9, 3.625065110777156*^9}, 
+   3.6252373067268496`*^9}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\value9.txt\"\>"], "Output",
+ CellChangeTimes->{
+  3.6250651133667603`*^9, 3.625229331471376*^9, {3.6252318036509824`*^9, 
+   3.625231819296079*^9}, 3.625232078562693*^9, 3.625232120224784*^9, 
+   3.625237308146864*^9}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\sol9.txt\"\>"], "Output",
+ CellChangeTimes->{
+  3.6250651133667603`*^9, 3.625229331471376*^9, {3.6252318036509824`*^9, 
+   3.625231819296079*^9}, 3.625232078562693*^9, 3.625232120224784*^9, 
+   3.625237308156864*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1268, 877},
+WindowMargins->{{-9, Automatic}, {Automatic, 4}},
+PrivateNotebookOptions->{"VersionedStylesheet"->{"Default.nb"[8.] -> False}},
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (January 25, 2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 163, 6, 171, "Subtitle"],
+Cell[CellGroupData[{
+Cell[767, 32, 511, 8, 60, "Input"],
+Cell[1281, 42, 367, 5, 36, "Output"],
+Cell[1651, 49, 275, 4, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1963, 58, 3279, 100, 221, "Input"],
+Cell[5245, 160, 393, 5, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5675, 170, 452, 10, 83, "Input"],
+Cell[6130, 182, 437, 9, 36, "Output"],
+Cell[6570, 193, 293, 5, 36, "Output"],
+Cell[6866, 200, 292, 4, 38, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7195, 209, 622, 16, 60, "Input"],
+Cell[7820, 227, 329, 5, 36, "Output"],
+Cell[8152, 234, 327, 5, 36, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

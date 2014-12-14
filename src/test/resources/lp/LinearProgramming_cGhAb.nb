@@ -1,0 +1,279 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      8603,        270]
+NotebookOptionsPosition[      7614,        233]
+NotebookOutlinePosition[      8035,        249]
+CellTagsIndexPosition[      7992,        246]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+Solves the LP problem defined by:
+min(c) s.t.
+G.x < h
+A.x = b\
+\>", "Subtitle"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"myRootDir", "=", 
+  RowBox[{"NotebookDirectory", "[", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"myProblemId", " ", "=", " ", 
+  RowBox[{"ToString", "[", "\"\<1\>\"", "]"}]}]}], "Input",
+ CellChangeTimes->{{3.625229457269453*^9, 3.625229470113226*^9}, {
+  3.6252308966001687`*^9, 3.62523089668017*^9}, {3.625234243390255*^9, 
+  3.6252342435112553`*^9}}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\\"\>"], "Output",
+ CellChangeTimes->{3.625229578874772*^9, 3.625230901313265*^9, 
+  3.625234246982255*^9}],
+
+Cell[BoxData["\<\"1\"\>"], "Output",
+ CellChangeTimes->{3.625229578874772*^9, 3.625230901313265*^9, 
+  3.625234246982255*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   StyleBox["c", "MR"], 
+   StyleBox["=", "MR"], 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<c\>\"", ",", "myProblemId", ",", 
+        "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"n", "=", 
+   RowBox[{"Length", "[", "c", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"G", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<G\>\"", ",", "myProblemId", ",", 
+        "\"\<.csv\>\""}], "}"}], "]"}], ",", "\"\<CSV\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"h", 
+   StyleBox["=", "MR"], 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<h\>\"", ",", "myProblemId", ",", 
+        "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"hCoeff", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"h", "[", 
+        RowBox[{"[", "i", "]"}], "]"}], ",", 
+       RowBox[{"-", "1"}]}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", 
+       RowBox[{"Length", "[", "h", "]"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"A", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<A\>\"", ",", "myProblemId", ",", 
+        "\"\<.csv\>\""}], "}"}], "]"}], ",", "\"\<CSV\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b", 
+   StyleBox["=", "MR"], 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<b\>\"", ",", "myProblemId", ",", 
+        "\"\<.txt\>\""}], "}"}], "]"}], ",", "\"\<List\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"bCoeff", " ", "=", " ", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"b", "[", 
+        RowBox[{"[", "i", "]"}], "]"}], ",", "0"}], "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"i", ",", 
+       RowBox[{"Length", "[", "b", "]"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"GA", " ", "=", " ", 
+   RowBox[{"Join", "[", 
+    RowBox[{"G", ",", " ", "A"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"hbCoeff", " ", "=", " ", 
+   RowBox[{"Join", "[", 
+    RowBox[{"hCoeff", ",", " ", "bCoeff"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", "n"}], "Input",
+ CellChangeTimes->{
+  3.625229475701562*^9, {3.625229531094898*^9, 3.625229560445664*^9}, {
+   3.625843514794919*^9, 3.625843517694919*^9}}],
+
+Cell[BoxData["26"], "Output",
+ CellChangeTimes->{3.6252295880073256`*^9, 3.6252297069293394`*^9, 
+  3.625230910093444*^9, 3.6252309458561707`*^9, 3.625234247262255*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"mySol", "=", 
+  RowBox[{"LinearProgramming", "[", 
+   RowBox[{"c", ",", "GA", ",", "hbCoeff"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"myValue", " ", "=", " ", 
+  RowBox[{"c", ".", "mySol"}]}], "\[IndentingNewLine]", 
+ RowBox[{"myTolerance", " ", "=", " ", 
+  RowBox[{"Norm", "[", 
+   RowBox[{
+    RowBox[{"A", ".", "mySol"}], " ", "-", " ", "b"}], "]"}]}]}], "Input",
+ CellChangeTimes->{{3.6252297380975933`*^9, 3.6252297382575994`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "1.`", ",", "0.`", ",", "1.`", ",", "1.`", ",", "0.`", ",", "0.`", ",", 
+   "1.`", ",", "1.`", ",", "0.`", ",", "0.`", ",", "1.`", ",", "0.`", ",", 
+   "1.`", ",", "1.`", ",", "1.`", ",", "0.`", ",", "0.`", ",", "1.`", ",", 
+   "0.`", ",", "1.`", ",", "0.`", ",", "1.`", ",", "0.`", ",", "1.`", ",", 
+   "0.`", ",", "0.`"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.625229615801997*^9, {3.6252297108724976`*^9, 3.6252297394016457`*^9}, 
+   3.625230913506513*^9, 3.625230954429344*^9, 3.625234247272255*^9}],
+
+Cell[BoxData[
+ RowBox[{"-", "0.5`"}]], "Output",
+ CellChangeTimes->{
+  3.625229615801997*^9, {3.6252297108724976`*^9, 3.6252297394016457`*^9}, 
+   3.625230913506513*^9, 3.625230954429344*^9, 3.625234247282255*^9}],
+
+Cell[BoxData["0.`"], "Output",
+ CellChangeTimes->{
+  3.625229615801997*^9, {3.6252297108724976`*^9, 3.6252297394016457`*^9}, 
+   3.625230913506513*^9, 3.625230954429344*^9, 3.625234247282255*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{"StringJoin", "[", 
+    RowBox[{
+    "myRootDir", ",", " ", "\"\<value\>\"", ",", "myProblemId", ",", 
+     "\"\<.txt\>\""}], "]"}], ",", "myValue", " ", ",", " ", 
+   "\"\<Lines\>\""}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{"StringJoin", "[", 
+    RowBox[{
+    "myRootDir", ",", " ", "\"\<sol\>\"", ",", "myProblemId", ",", 
+     "\"\<.txt\>\""}], "]"}], ",", "mySol", " ", ",", " ", "\"\<Lines\>\""}], 
+  "]"}], "\[IndentingNewLine]", 
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{"StringJoin", "[", 
+    RowBox[{
+    "myRootDir", ",", " ", "\"\<tolerance\>\"", ",", "myProblemId", ",", 
+     "\"\<.txt\>\""}], "]"}], ",", "myTolerance", " ", ",", " ", 
+   "\"\<Lines\>\""}], "]"}]}], "Input"],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\value1.txt\"\>"], "Output",
+ CellChangeTimes->{3.62522975538529*^9, 3.6252309576994104`*^9, 
+  3.625234247302255*^9}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\sol1.txt\"\>"], "Output",
+ CellChangeTimes->{3.62522975538529*^9, 3.6252309576994104`*^9, 
+  3.625234247312255*^9}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\lp\\\\tolerance1.txt\"\>"], "Output",
+ CellChangeTimes->{3.62522975538529*^9, 3.6252309576994104`*^9, 
+  3.625234247312255*^9}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1268, 871},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+PrivateNotebookOptions->{"VersionedStylesheet"->{"Default.nb"[8.] -> False}},
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (January 25, 2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 89, 5, 171, "Subtitle"],
+Cell[CellGroupData[{
+Cell[693, 31, 378, 7, 60, "Input"],
+Cell[1074, 40, 217, 3, 36, "Output"],
+Cell[1294, 45, 125, 2, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1456, 52, 2958, 94, 267, "Input"],
+Cell[4417, 148, 168, 2, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4622, 155, 467, 10, 83, "Input"],
+Cell[5092, 167, 549, 10, 36, "Output"],
+Cell[5644, 179, 213, 4, 36, "Output"],
+Cell[5860, 185, 195, 3, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6092, 193, 799, 21, 83, "Input"],
+Cell[6894, 216, 228, 3, 36, "Output"],
+Cell[7125, 221, 226, 3, 36, "Output"],
+Cell[7354, 226, 232, 3, 36, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
