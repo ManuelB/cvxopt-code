@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.joptimizer</groupId>
   <artifactId>joptimizer</artifactId>
-  <version>3.4.0</version>
+  <version>3.4.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>JOptimizer</name>
   <description>JOptimizer is a java library for solving general convex optimization problems, like for example LP, QP, QCQP, SOCP, SDP, GP and many more.
@@ -73,9 +73,9 @@
     </license>
   </licenses>
   <scm>
-		<connection>scm:svn:http://svn.code.sf.net/p/cvxopt/code/tags/3.4.0/</connection>
-		<developerConnection>scm:svn:https://svn.code.sf.net/p/cvxopt/code/tags/3.4.0</developerConnection>
-		<url>http://svn.code.sf.net/p/cvxopt/code/tags/3.4.0</url>
+		<connection>scm:svn:http://svn.code.sf.net/p/cvxopt/code/trunk</connection>
+		<developerConnection>scm:svn:https://svn.code.sf.net/p/cvxopt/code/trunk</developerConnection>
+		<url>http://svn.code.sf.net/p/cvxopt/code/trunk</url>
 	</scm>
 	<distributionManagement>
 	  <snapshotRepository>
