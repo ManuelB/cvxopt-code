@@ -1,17 +1,12 @@
 /*
- * Copyright 2011-2014 JOptimizer
+ * Copyright 2011-2016 joptimizer.com
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This work is licensed under the Creative Commons Attribution-NoDerivatives 4.0 
+ * International License. To view a copy of this license, visit 
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *        http://creativecommons.org/licenses/by-nd/4.0/ 
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 package com.joptimizer.optimizers;
 
@@ -39,7 +34,6 @@ import cern.colt.matrix.linalg.Algebra;
 
 import com.joptimizer.algebra.Matrix1NormRescaler;
 import com.joptimizer.algebra.MatrixRescaler;
-import com.joptimizer.algebra.QRSparseFactorization;
 import com.joptimizer.util.ColtUtils;
 import com.joptimizer.util.Utils;
 
@@ -132,6 +126,8 @@ public class LPPresolver {
 	 * Column by column non-zeroes entries of A.
 	 */
 	private short[][] vColPositions;
+	
+	short[] duplicatedColsArray = new short[] {};
 	
 	private double[] g;//min constraints values (g[i] <= A[i,j].x)
 	private double[] h;//max constraints values (h[i] >= A[i,j].x)
@@ -259,8 +255,8 @@ public class LPPresolver {
 		}
 		for(int i=0; i<originalN; i++){
 			if(originalUB.getQuick(i) < originalLB.getQuick(i)){
-				log.debug("infeasible problem");
-				throw new RuntimeException("infeasible problem");
+				log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+				throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 			}
 		}
 		lb = originalLB.copy();//this will change during the process
@@ -310,8 +306,8 @@ public class LPPresolver {
       	short[] vRowPositionsI = vRowPositions[i];
       	if(vRowPositionsI.length < 1){
 					if(!isZero(originalB.getQuick(i))){	
-						log.debug("infeasible problem");
-						throw new RuntimeException("infeasible problem");
+						log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+						throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 					}
 				}
 				if(this.vRowLengthMap[vRowPositionsI.length]==null){
@@ -335,8 +331,8 @@ public class LPPresolver {
 				//check empty row
 				if(vRowPositionsI.length < 1){
 					if(!isZero(originalB.getQuick(i))){	
-						log.debug("infeasible problem");
-						throw new RuntimeException("infeasible problem");
+						log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+						throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 					}
 				}
 				vRowPositions[i] = vRowPositionsI;
@@ -606,6 +602,7 @@ public class LPPresolver {
 					//variable x is fixed
 					double v = lb.getQuick(j);
 					log.debug("found fixed variables: x[" + j + "]="+v);
+					checkFixedVariableBounds(j, v, lb, ub);
 					addToPresolvingStack(new LinearDependency(j, null, null, v));
 					
 					//substitution into objective function @TODO
@@ -618,8 +615,8 @@ public class LPPresolver {
 								if(vRowPositionsK.length == 1){
 									//this row contains only xj
 									if(!isZero(v - b.getQuick(k) / A.getQuick(k, j))){	
-										log.debug("infeasible problem");
-										throw new RuntimeException("infeasible problem");
+										log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+										throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 									}
 								}
 								b.setQuick(k, b.getQuick(k) - A.getQuick(k, j) * v);
@@ -659,6 +656,7 @@ public class LPPresolver {
 				}
 				double xj = b.getQuick(i) / AIJ;
 				log.debug("found singleton at row "+i+": x[" + j +"]=" + xj);
+				checkFixedVariableBounds(j, xj, lb, ub);
 				addToPresolvingStack(new LinearDependency(j, null, null, xj));
 				
 				//substitution into the other equations
@@ -670,8 +668,8 @@ public class LPPresolver {
 								//this row contains xj at position nz
 								if(vRowPositionsK.length == 1){
 									if(!isZero(xj - b.getQuick(k) / A.getQuick(k, j))){
-										log.debug("infeasible problem");
-										throw new RuntimeException("infeasible problem");
+										log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+										throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 									}
 								}
 								b.setQuick(k, b.getQuick(k) - A.getQuick(k, j) * xj);
@@ -734,8 +732,8 @@ public class LPPresolver {
 				}
 				
 				if(h[i] < b.getQuick(i) || b.getQuick(i) < g[i]){
-					log.debug("infeasible problem");
-					throw new RuntimeException("infeasible problem");
+					log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+					throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 				}
 				
 				//logger.debug(g[i]+","+b[i]);
@@ -756,6 +754,7 @@ public class LPPresolver {
 						}
 						log.debug("x[" + j +"]=" + lb.getQuick(j));
 						forcedVariablesI = ArrayUtils.add(forcedVariablesI, j);
+						checkFixedVariableBounds(j, lb.getQuick(j), lb, ub);
 						addToPresolvingStack(new LinearDependency(j, null, null, lb.getQuick(j)));
 					}
 				}else if(isZero(h[i]-b.getQuick(i))){
@@ -773,6 +772,7 @@ public class LPPresolver {
 						}
 						log.debug("x[" + j +"]=" + lb.getQuick(j));
 						forcedVariablesI = ArrayUtils.add(forcedVariablesI, j);
+						checkFixedVariableBounds(j, lb.getQuick(j), lb, ub);
 						addToPresolvingStack(new LinearDependency(j, null, null, lb.getQuick(j)));
 					}
 				}
@@ -790,8 +790,8 @@ public class LPPresolver {
 										//this row contains x[j]
 										if(vRowPositionsK.length == 1){
 											if(!isZero(xj - b.getQuick(k) / A.getQuick(k, j))){
-												log.debug("infeasible problem");
-												throw new RuntimeException("infeasible problem");
+												log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+												throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 											}
 										}
 										b.setQuick(k, b.getQuick(k) - A.getQuick(k, j) * xj);
@@ -1106,6 +1106,7 @@ public class LPPresolver {
 									ub.setQuick(column, lb.getQuick(column));
 								}
 								log.debug("found fixed variables: x[" + column + "]="+lb.getQuick(column));
+								checkFixedVariableBounds(column, lb.getQuick(column), lb, ub);
 								addToPresolvingStack(new LinearDependency(column, null, null, lb.getQuick(column)));
 								pruneFixedVariable(column, c, A, b, lb, ub, ylb, yub, zlb, zub);
 							}
@@ -1294,6 +1295,7 @@ public class LPPresolver {
 									ub.setQuick(y, d);
 								}
 								log.debug("found fixed variables: x[" + column + "]="+lb.getQuick(column));
+								checkFixedVariableBounds(column, lb.getQuick(column), lb, ub);
 								addToPresolvingStack(new LinearDependency(column, null, null, lb.getQuick(column)));
 								pruneFixedVariable(column, c, A, b, lb, ub, ylb, yub, zlb, zub);
 							}
@@ -1369,6 +1371,7 @@ public class LPPresolver {
 					}
 					ub.setQuick(col, lb.getQuick(col));
 					log.debug("x[" + col + "]="+lb.getQuick(col));
+					checkFixedVariableBounds(col, lb.getQuick(col), lb, ub);
 					addToPresolvingStack(new LinearDependency(col, null, null, lb.getQuick(col)));
 					pruneFixedVariable(col, c, A, b, lb, ub, ylb, yub, zlb, zub);
 				}else if(isCmeNegative){
@@ -1379,6 +1382,7 @@ public class LPPresolver {
 					}
 					lb.setQuick(col, ub.getQuick(col));
 					log.debug("x[" + col + "]="+ub.getQuick(col));
+					checkFixedVariableBounds(col, ub.getQuick(col), lb, ub);
 					addToPresolvingStack(new LinearDependency(col, null, null, ub.getQuick(col)));
 					pruneFixedVariable(col, c, A, b, lb, ub, ylb, yub, zlb, zub);
 				}
@@ -1393,6 +1397,7 @@ public class LPPresolver {
 					log.debug("found weakly dominated column: " + col);
 					ub.setQuick(col, lb.getQuick(col));
 					log.debug("x[" + col + "]="+lb.getQuick(col));
+					checkFixedVariableBounds(col, lb.getQuick(col), lb, ub);
 					addToPresolvingStack(new LinearDependency(col, null, null, lb.getQuick(col)));
 					pruneFixedVariable(col, c, A, b, lb, ub, ylb, yub, zlb, zub);
 					continue;
@@ -1402,6 +1407,7 @@ public class LPPresolver {
 					log.debug("found weakly dominated column: " + col);
 					lb.setQuick(col, ub.getQuick(col));
 					log.debug("x[" + col + "]="+ub.getQuick(col));
+					checkFixedVariableBounds(col, ub.getQuick(col), lb, ub);
 					addToPresolvingStack(new LinearDependency(col, null, null, ub.getQuick(col)));
 					pruneFixedVariable(col, c, A, b, lb, ub, ylb, yub, zlb, zub);
 					continue;
@@ -1581,6 +1587,7 @@ public class LPPresolver {
 			DoubleMatrix1D ylb, DoubleMatrix1D yub,
 			DoubleMatrix1D zlb, DoubleMatrix1D zub) {
 		//logger.debug("actual A: " + ArrayUtils.toString(A));
+		
 		//the position 0 is for empty columns, 1 is for column singleton
 		int startingLength = 2;
 		for(int i=startingLength; i<vColLengthMap.length; i++){
@@ -1593,6 +1600,9 @@ public class LPPresolver {
 			boolean stop = false;
 			for(int j=0; !stop && j<vColLengthMapI.length; j++){
 				short pcol = (short)vColLengthMapI[j];//the column of A that has this number of nz
+				if(ArrayUtils.contains(duplicatedColsArray, pcol)){
+					continue;
+				}
 				short[] vColPositionsPcol = vColPositions[pcol];
 				if(vColPositionsPcol.length != i){
 					log.debug("Column "+pcol+" has an unexpected number of nz: expected " + i + " but is " + vColPositionsPcol.length);
@@ -1606,6 +1616,9 @@ public class LPPresolver {
 				//look into the next columns with the same sparsity pattern
 				for(int sj=j+1; !stop && sj<vColLengthMapI.length; sj++){
 					short scol = (short)vColLengthMapI[sj];
+					if(ArrayUtils.contains(duplicatedColsArray, scol)){
+						continue;
+					}
 					short[] vColPositionsScol = vColPositions[scol];
 					if(vColPositionsScol.length != i){
 						log.debug("Column "+scol+" has an unexpected number of nz: expected " + i + " but is " + vColPositionsScol.length);
@@ -1641,6 +1654,7 @@ public class LPPresolver {
 											if(isUBPUnbounded){
 												ub.setQuick(pcol, lb.getQuick(pcol));
 												log.debug("found fixed variables: x[" + pcol + "]="+lb.getQuick(pcol));
+												checkFixedVariableBounds(pcol, lb.getQuick(pcol), lb, ub);
 												//presolvingStack.add(presolvingStack.size(), new LinearDependency(pcol, null, null, lb[pcol]));
 												addToPresolvingStack(new LinearDependency(pcol, null, null, lb.getQuick(pcol)));
 												pruneFixedVariable(pcol, c, A, b, lb, ub, ylb, yub, zlb, zub);
@@ -1656,6 +1670,7 @@ public class LPPresolver {
 											if(!isUBPUnbounded){
 												lb.setQuick(pcol, ub.getQuick(pcol));
 												log.debug("found fixed variables: x[" + pcol + "]="+ub.getQuick(pcol));
+												checkFixedVariableBounds(pcol, ub.getQuick(pcol), lb, ub);
 												//presolvingStack.add(presolvingStack.size(), new LinearDependency(pcol, null, null, ub[pcol]));
 												addToPresolvingStack(new LinearDependency(pcol, null, null, ub.getQuick(pcol)));
 												pruneFixedVariable(pcol, c, A, b, lb, ub, ylb, yub, zlb, zub);
@@ -1674,6 +1689,7 @@ public class LPPresolver {
 											if(!isUBPUnbounded){
 												lb.setQuick(pcol, ub.getQuick(pcol));
 												log.debug("found fixed variables: x[" + pcol + "]="+ub.getQuick(pcol));
+												checkFixedVariableBounds(pcol, ub.getQuick(pcol), lb, ub);
 												//presolvingStack.add(presolvingStack.size(), new LinearDependency(pcol, null, null, ub[pcol]));
 												addToPresolvingStack(new LinearDependency(pcol, null, null, ub.getQuick(pcol)));
 												pruneFixedVariable(pcol, c, A, b, lb, ub, ylb, yub, zlb, zub);
@@ -1689,6 +1705,7 @@ public class LPPresolver {
 											if(isUBPUnbounded){
 												ub.setQuick(pcol, lb.getQuick(pcol));
 												log.debug("found fixed variables: x[" + pcol + "]="+lb.getQuick(pcol));
+												checkFixedVariableBounds(pcol, lb.getQuick(pcol), lb, ub);
 												//presolvingStack.add(presolvingStack.size(), new LinearDependency(pcol, null, null, lb[pcol]));
 												addToPresolvingStack(new LinearDependency(pcol, null, null, lb.getQuick(pcol)));
 												pruneFixedVariable(pcol, c, A, b, lb, ub, ylb, yub, zlb, zub);
@@ -1708,9 +1725,9 @@ public class LPPresolver {
 								//that is: the variable xj and the corresponding column j is removed and 
 								//the new lower and upper bounds lb[k] and ub[k] on xk are calculated as
 								//given in that table
-								boolean vp = v > 0;
-								boolean vm = v < 0;
-								if(vp || vm){
+								boolean isVPos = v > 0;
+								boolean isVNeg = v < 0;
+								if((isVPos || isVNeg )){
 									log.debug("Replaced two duplicate columns ("+pcol+","+scol+") by one ("+scol+")");
 									//remove the variable pcol(i.e. j)
 									for(int r=0; r<vColPositionsPcol.length; r++){
@@ -1723,13 +1740,15 @@ public class LPPresolver {
 									vColPositions[pcol] = new short[]{};
 									DuplicatedColumn dc = new DuplicatedColumn(pcol, scol, scol, v, lb.getQuick(pcol), ub.getQuick(pcol), lb.getQuick(scol), ub.getQuick(scol));
 									addToPresolvingStack(dc);
-									if(vp){
+									if(isVPos){
 										lb.setQuick(scol, lb.getQuick(scol) + v*lb.getQuick(pcol));
 										ub.setQuick(scol, ub.getQuick(scol) + v*ub.getQuick(pcol));
-									}else if(vm){
+									}else if(isVNeg){
 										lb.setQuick(scol, lb.getQuick(scol) + v*ub.getQuick(pcol));
 										ub.setQuick(scol, ub.getQuick(scol) + v*lb.getQuick(pcol));
 									}
+									duplicatedColsArray = addToSortedArray(duplicatedColsArray, pcol);
+									//duplicatedColsArray = addToSortedArray(duplicatedColsArray, scol);
 									this.someReductionDone = true;
 									
 									//this is just for testing purpose
@@ -1741,6 +1760,8 @@ public class LPPresolver {
 										//expectedSolution[scol] = expectedSolution[scol]+v*expectedSolution[pcol];
 										dc.preSolve(expectedSolution);
 									}
+									
+									break;
 								}
 							}
 						}
@@ -1949,8 +1970,8 @@ public class LPPresolver {
 				if(vRowPositions[i]==null || vRowPositions[i].length==0){
 					//this row contains only x
 					if(!isZero(v - b.getQuick(i) / A.getQuick(i, x))){	
-						log.debug("infeasible problem");
-						throw new RuntimeException("infeasible problem");
+						log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+						throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 					}
 					A.setQuick(i, x, 0.);
 					b.setQuick(i, 0);
@@ -2280,6 +2301,14 @@ public class LPPresolver {
 			StringBuffer sb = new StringBuffer();
 			sb.append("x[" + xk + "]=-" + v + "*x[" + xj + "] + xPrime[" + xkPrime + "]");
 			return sb.toString();
+		}
+	}
+	
+	private void checkFixedVariableBounds(short x,  double v,
+			DoubleMatrix1D lb, DoubleMatrix1D ub) {
+		if(v < lb.getQuick(x) || v > ub.getQuick(x)){
+			log.debug(JOptimizer.INFEASIBLE_PROBLEM);
+			throw new RuntimeException(JOptimizer.INFEASIBLE_PROBLEM);
 		}
 	}
 	
