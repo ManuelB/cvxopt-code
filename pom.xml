@@ -2,19 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 <!--
 /*
- * Copyright 2011-2014 JOptimizer
+ * Copyright 2011-2016 joptimizer.com
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This work is licensed under the Creative Commons Attribution-NoDerivatives 4.0 
+ * International License. To view a copy of this license, visit 
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *        http://creativecommons.org/licenses/by-nd/4.0/ 
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
  -->
   <modelVersion>4.0.0</modelVersion>
@@ -31,7 +26,7 @@
       <id>a.t.</id>
       <name>alberto trivellato</name>
       <email>alberto.trivellato@gmail.com</email>
-      <organization>JOptimizer</organization>
+      <organization>joptimizer.com</organization>
       <organizationUrl>${project.site.url}</organizationUrl>
       <timezone>+1</timezone>
       <roles>
@@ -43,7 +38,7 @@
     <contributor>
       <name>cristiana moriconi</name>
       <email>cristiana.moriconi@gmail.com</email>
-      <organization>JOptimizer</organization>
+      <organization>joptimizer.com</organization>
       <organizationUrl>${project.site.url}</organizationUrl>
       <timezone>+1</timezone>
       <roles>
@@ -53,7 +48,7 @@
     <contributor>
       <name>emanuele squillantini</name>
       <email>esquillantini@hotmail.com</email>
-      <organization>JOptimizer</organization>
+      <organization>joptimizer.com</organization>
       <organizationUrl>${project.site.url}</organizationUrl>
       <timezone>+1</timezone>
       <roles>
@@ -62,13 +57,13 @@
     </contributor>
   </contributors>
   <organization>
-    <name>JOptimizer</name>
+    <name>joptimizer.com</name>
     <url>${project.site.url}</url>
   </organization>
   <licenses>
     <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <name>Creative Commons Attribution-NoDerivatives 4.0 International Public License</name>
+      <url>http://creativecommons.org/licenses/by-nd/4.0/legalcode</url>
       <distribution>manual</distribution>
     </license>
   </licenses>
@@ -162,6 +157,14 @@
         <directory>src/main/resources</directory>
         <filtering>false</filtering>
       </resource>
+      <resource>
+         <directory>${basedir}</directory>
+         <includes>
+          <include>LICENSE.txt</include>
+        </includes>
+         <targetPath>META-INF</targetPath>
+         <filtering>false</filtering>
+      </resource>
     </resources>
     <testResources>
       <testResource>
@@ -194,6 +197,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.2</version>
         <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
           <source>${project.build.java.version}</source>
           <target>${project.build.java.version}</target>
         </configuration>
@@ -230,9 +234,16 @@
         <configuration>
           <archive>
             <manifest>
+            	<addClasspath>true</addClasspath>
 					    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 					    <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 					  </manifest>
+					  <manifestEntries>
+              <url>${project.url}</url>
+              <X-Compile-Source-JDK>${project.build.java.version}</X-Compile-Source-JDK>
+              <X-Compile-Target-JDK>${project.build.java.version}</X-Compile-Target-JDK>
+              <Bundle-License>http://creativecommons.org/licenses/by-nd/4.0</Bundle-License>
+            </manifestEntries>
           </archive>
         </configuration>
       </plugin>
