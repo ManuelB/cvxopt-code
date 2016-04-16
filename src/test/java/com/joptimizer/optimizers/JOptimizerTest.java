@@ -1,17 +1,12 @@
 /*
- * Copyright 2011-2014 JOptimizer
+ * Copyright 2011-2016 joptimizer.com
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This work is licensed under the Creative Commons Attribution-NoDerivatives 4.0 
+ * International License. To view a copy of this license, visit 
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *        http://creativecommons.org/licenses/by-nd/4.0/ 
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 package com.joptimizer.optimizers;
 
@@ -587,6 +582,47 @@ public class JOptimizerTest extends TestCase {
 			assertEquals(sol[0]+sol[1]+sol[2], 1., 0.00000001);
 			assertTrue(0.006*sol[0]+0.002*sol[1]+0.007*sol[2] > 0.0010);
 	  }
+	
+	/**
+	 * Infeasible LP.
+	 * 
+	 * @see LPPrimalDualMethodTest#testInfeasible1Red()
+	 */
+	public void testInfeasible1() throws Exception {
+		log.debug("testInfeasible1");
+
+		double[] c = new double[] { 1.0, 1.0, 1.0 };
+		double[][] A = new double[][] { { 1.0, 1.0, 1.0 } };
+		double[] b = new double[] { 1.0 };
+		double[][] G = new double[][] { 
+				{ 1.0, 1.0, 0.0 },
+				{ 0.0, 1.0, 1.0 } };
+		double[] h = new double[] { 0.3, 0.4 };
+
+		OptimizationRequest or = new OptimizationRequest();
+		or.setF0(new LinearMultivariateRealFunction(c, 0));
+		or.setA(A);
+		or.setB(b);
+		
+		//inequalities
+		ConvexMultivariateRealFunction[] inequalities = new ConvexMultivariateRealFunction[2];
+		inequalities[0] = new LinearMultivariateRealFunction(G[0], -h[0]);
+		inequalities[1] = new LinearMultivariateRealFunction(G[1], -h[1]);
+		or.setFi(inequalities);
+		
+		JOptimizer opt = new JOptimizer();
+		opt.setOptimizationRequest(or);
+
+		try{
+			opt.optimize();
+			//unexpected behavior: the problem is infeasible
+			fail("the problem is expected to be infeasible");
+			
+		}catch(Exception e){
+			//expected behavior: the problem is infeasible 
+			assertTrue(true);
+		}
+	}
 
 	/**
 	 * LP problem with dim=26.
@@ -858,6 +894,83 @@ public class JOptimizerTest extends TestCase {
 		double[] sol = opt.getOptimizationResponse().getSolution();
 		log.debug("sol   : " + ArrayUtils.toString(sol));
 		assertEquals(2.0, sol[0], or.getTolerance());
+	}
+	
+	/**
+	 Problem in the form
+	 * min(c.x) s.t.
+	 * A.x = b
+	 * G.x < h
+	 * lb < x
+	 * x[ < ub
+	 * 
+	 * c = x0+x1+x2+x3
+	 * 
+	 * Submitted by Lars Ohmann 04/02/2016
+	 */
+	public void testLP4() throws Exception {
+		log.debug("testLP4");
+
+		// Objective function
+		double[] c = new double[] { 1., 1., 1., 1., 0., 0., 0., 0., 0., 0., 0., }; // u1+u2+u3+u4+0x1+0x2+0x3+0x4+0c+0d+0e
+
+		// Inequalities constraints
+		double[][] G = new double[][] {
+				{ -1., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0. },
+				{ -1., 0., 0., 0., -1., 0., 0., 0., 0., 0., 0. },
+				{ 0., -1., 0., 0., 1., 0., 0., 0., 0., 0., 0. },
+				{ 0., -1., 0., 0., -1., 0., 0., 0., 0., 0., 0. },
+				{ 0., 0., -1., 0., 1., 0., 0., 0., 0., 0., 0. },
+				{ 0., 0., -1., 0., -1., 0., 0., 0., 0., 0., 0. },
+				{ 0., 0., 0., -1., 1., 0., 0., 0., 0., 0., 0. },
+				{ 0., 0., 0., -1., -1., 0., 0., 0., 0., 0., 0. },
+
+		};
+		double[] h = new double[] { 0.585, -0.585, 0.327, -0.327, 0.043, -0.043,
+				0.0124, -0.0124 };
+
+		double[][] A = new double[][] {
+				{ 0., 0., 0., 0., -1., 0., 0., 0., 1., 0.51, 0. },
+				{ 0., 0., 0., 0., 0., -1., 0., 0., 0., 0.40, 1. },
+				{ 0., 0., 0., 0., 0., 0., -1., 0., 0., 0.07, 0. },
+				{ 0., 0., 0., 0., 0., 0., 0., -1., 0., 0.02, 0. },
+				{ 0., 0., 0., 0., 0., 0., 0., 0., 1., 1., 1. }, };
+
+		double[] b = new double[] { 0., 0., 0., 0., 1. };
+
+		// Bounds on variables
+		double[] lb = new double[] {0,0,0,0,0,0,0,0,0,0,0};
+		double[] ub = new double[] {10,10,10,10,10,10,10,10,10,10,10};
+
+		// optimization problem
+		LPOptimizationRequest or = new LPOptimizationRequest();
+
+		or.setC(c);
+		or.setG(G);
+		or.setH(h);
+		or.setA(A);
+		or.setB(b);
+		or.setLb(lb);
+		or.setUb(ub);
+		or.setDumpProblem(true);
+		
+		LPPrimalDualMethod opt = new LPPrimalDualMethod();
+
+		opt.setOptimizationRequest(or);
+		int returnCode = opt.optimize();
+		if(returnCode == OptimizationResponse.FAILED){
+			fail();
+		}
+
+		OptimizationResponse response = opt.getOptimizationResponse();
+		double[] sol = response.getSolution();
+		RealVector cVector = new ArrayRealVector(c);
+		RealVector solVector = new ArrayRealVector(sol);
+		double value = cVector.dotProduct(solVector);
+		log.debug("sol   : " + ArrayUtils.toString(sol));
+		log.debug("value : "	+ value);
+		
+		assertEquals(11, sol.length);
 	}
 
 	/**
@@ -1270,6 +1383,70 @@ public class JOptimizerTest extends TestCase {
 			//assertEquals(1., sol[1], or.getTolerance());
 			assertEquals(1., value, or.getTolerance());
 		}
+		
+		/**
+		 * Quadratic programming in the form of:
+		 * min((x0-x1)^2) s.t.
+		 * x0>0, x1>0
+		 * 
+		 * It is convex but not strictly convex (something like a wing with 0 on x0 = x1) 
+		 * and without inequalities the problem will fail because the solver will be
+		 * NewtonUnconstrained that requires a strictly convex objective function.
+		 * 
+		 * Submitted by Luke Lindsay 02/12/2015
+		 */
+	public void testQP5() throws Exception {
+		log.debug("testQP5");
+
+		// Objective function f(x0,x1)=(x0-x1)^2
+		ConvexMultivariateRealFunction objectiveFunction = new ConvexMultivariateRealFunction() {
+
+			public double value(double[] X) {
+				double v = X[0] - X[1];
+				return v * v;
+			}
+
+			public double[] gradient(double[] X) {
+				double[] gradient = { 2 * X[0] - 2 * X[1], -2 * X[0] + 2 * X[1] };
+				return gradient;
+			}
+
+			public double[][] hessian(double[] X) {
+				double[][] hessian = { { 2d, -2d }, { -2d, 2d } };
+				return hessian;
+			}
+
+			public int getDim() {
+				return 2;
+			}
+		};
+
+		ConvexMultivariateRealFunction[] inequalities = new ConvexMultivariateRealFunction[2];
+		inequalities[0] = new LinearMultivariateRealFunction(
+				new double[] { -1, 0 }, 0);
+		inequalities[1] = new LinearMultivariateRealFunction(
+				new double[] { 0, -1 }, 0);
+
+		OptimizationRequest or = new OptimizationRequest();
+		or.setF0(objectiveFunction);
+		or.setFi(inequalities);
+		or.setInitialPoint(new double[] { 0.4, 0.2 });
+
+		JOptimizer opt = new JOptimizer();
+		opt.setOptimizationRequest(or);
+		int returnCode = opt.optimize();
+
+		if (returnCode == OptimizationResponse.FAILED) {
+			fail();
+		}
+
+		double[] sol = opt.getOptimizationResponse().getSolution();
+		double value = objectiveFunction.value(sol);
+		log.debug("sol: " + ArrayUtils.toString(sol));
+		log.debug("value  : " + value);
+		assertEquals(sol[0], sol[1], or.getTolerance());// minimum on x0 = x1
+		assertEquals(0., value, or.getTolerance());
+	}
 		
 		/**
 	 * Problem in the form

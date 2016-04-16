@@ -1,17 +1,12 @@
 /*
- * Copyright 2011-2014 JOptimizer
+ * Copyright 2011-2016 joptimizer.com
  *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
+ * This work is licensed under the Creative Commons Attribution-NoDerivatives 4.0 
+ * International License. To view a copy of this license, visit 
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *        http://creativecommons.org/licenses/by-nd/4.0/ 
  *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
+ * or send a letter to Creative Commons, PO Box 1866, Mountain View, CA 94042, USA.
  */
 package com.joptimizer.optimizers;
 
@@ -347,6 +342,94 @@ public class LPPrimalDualMethodTest extends TestCase {
 		assertEquals(1.5, sol[0], or.getTolerance());
 		assertEquals(0.0, sol[1], or.getTolerance());
   }
+	
+	/**
+	 * Infeasible problem in the form 
+	 * min(c) s.t. 
+	 * G.x < h 
+	 * A.x = b 
+	 * lb <= x <= ub
+	 * 
+	 * Submitted  26/03/2016 by Adriaan Joubert.
+	 */
+	public void testInfeasible1() throws Exception {
+		log.debug("testInfeasible1");
+
+		double[] c = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+		double[][] A = new double[][] { { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
+		double[] b = new double[] { 1.0 };
+		double[][] G = new double[][] { 
+				{ 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0 },
+				{ 1.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 } };
+		double[] h = new double[] { 0.3, 0.4 };
+		double[] lb = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+		double[] ub = new double[] { 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
+		
+		LPOptimizationRequest or = new LPOptimizationRequest();
+		or.setC(c);
+		or.setA(A);
+		or.setB(b);
+		or.setG(G);
+		or.setH(h);
+		or.setLb(lb);
+		or.setUb(ub);
+		or.setDumpProblem(true);
+
+		LPPrimalDualMethod opt = new LPPrimalDualMethod();
+		opt.setLPOptimizationRequest(or);
+
+		try{
+			opt.optimize();
+			//unexpected behavior: the problem is infeasible
+			fail("the problem is expected to be infeasible");
+			
+		}catch(Exception e){
+			//expected behavior: the problem is infeasible 
+			assertTrue(true);
+		}
+	}
+	
+	/**
+	 * Infeasible problem. 
+	 * This is a reduced formulation of {@link LPPrimalDualMethodTest#testInfeasible1()}.
+	 */
+	public void testInfeasible1Red() throws Exception {
+		log.debug("testInfeasible1Red");
+
+		double[] c = new double[] { 1.0, 1.0, 1.0 };
+		double[][] A = new double[][] { { 1.0, 1.0, 1.0 } };
+		double[] b = new double[] { 1.0 };
+		double[][] G = new double[][] { 
+				{ 1.0, 1.0, 0.0 },
+				{ 0.0, 1.0, 1.0 } };
+		double[] h = new double[] { 0.3, 0.4 };
+		double[] lb = new double[] { 0.0, 0.0, 0.0 };
+		double[] ub = new double[] { 1.0, 1.0, 1.0 };
+
+		LPOptimizationRequest or = new LPOptimizationRequest();
+		or.setC(c);
+		or.setA(A);
+		or.setB(b);
+		or.setG(G);
+		or.setH(h);
+		or.setLb(lb);
+		or.setUb(ub);
+		or.setDumpProblem(true);
+
+		LPPrimalDualMethod opt = new LPPrimalDualMethod();
+		opt.setLPOptimizationRequest(or);
+
+		try{
+			opt.optimize();
+			
+			//unexpected behavior: the problem is infeasible
+			fail("the problem is expected to be infeasible");
+			
+		}catch(Exception e){
+			//expected behavior: the problem is infeasible 
+			assertEquals(JOptimizer.INFEASIBLE_PROBLEM, e.getMessage());
+		}
+	}
 	
 	/**
 	 * Problem in the form
