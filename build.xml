@@ -15,7 +15,7 @@
 <!-- ===================== Property Definitions =========================== -->
   <property file="build.properties"/>
   <property name="app.name"      value="joptimizer"/>
-  <property name="app.version"   value="3.5.1"/>
+  <property name="app.version"   value="3.5.2-SNAPSHOT"/>
   <property name="src.home"      value="${basedir}/src"/>
   <property name="build.home"    value="${basedir}/target"/>
   <property name="reports.home"  value="${basedir}/target/test-reports"/>
