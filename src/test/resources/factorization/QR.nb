@@ -1,0 +1,166 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[      4316,        157]
+NotebookOptionsPosition[      3388,        120]
+NotebookOutlinePosition[      3809,        136]
+CellTagsIndexPosition[      3766,        133]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["\<\
+QR decomposition of the matrix m: 
+A = Transpose[Q].R\
+\>", "Subtitle"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"myRootDir", "=", 
+  RowBox[{"NotebookDirectory", "[", "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"myProblemId", " ", "=", " ", 
+   RowBox[{"ToString", "[", "\"\<16\>\"", "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.625324048386649*^9, 3.6253240508167467`*^9}}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\factorization\\\\\"\>"], "Output",
+ CellChangeTimes->{3.62532410785703*^9, 3.6253241516147804`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"A", "=", 
+   RowBox[{"Import", "[", 
+    RowBox[{
+     RowBox[{"StringJoin", "[", 
+      RowBox[{"{", 
+       RowBox[{
+       "myRootDir", ",", " ", "\"\<matrix\>\"", ",", "myProblemId", ",", 
+        "\"\<.csv\>\""}], "}"}], "]"}], ",", "\"\<CSV\>\""}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Length", "[", "A", "]"}]}], "Input",
+ CellChangeTimes->{{3.6253240703895297`*^9, 3.6253240830320354`*^9}}],
+
+Cell[BoxData["381"], "Output",
+ CellChangeTimes->{3.625324114538297*^9, 3.625324155126922*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"Q", ",", "R"}], "}"}], "=", 
+   RowBox[{
+    StyleBox["QRDecomposition", "MR"], "[", "A", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{"Norm", 
+  StyleBox["[", "MR"], 
+  RowBox[{
+   RowBox[{
+    RowBox[{"Transpose", "[", "Q", "]"}], ".", "R"}], 
+   StyleBox[" ", "MR"], 
+   StyleBox["-", "MR"], 
+   StyleBox[" ", "MR"], 
+   StyleBox["A", "MR"]}], 
+  StyleBox["]", "MR"]}]}], "Input"],
+
+Cell[BoxData["4.886182568560817`*^-15"], "Output",
+ CellChangeTimes->{3.625324161857191*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"MatrixRank", "[", "A", "]"}], "\[IndentingNewLine]", 
+ RowBox[{"MatrixRank", "[", 
+  RowBox[{"Transpose", "[", "A", "]"}], "]"}]}], "Input"],
+
+Cell[BoxData["379"], "Output",
+ CellChangeTimes->{3.6253241659783564`*^9}],
+
+Cell[BoxData["379"], "Output",
+ CellChangeTimes->{3.6253241660283585`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{
+   RowBox[{
+   "myRootDir", " ", "<>", " ", "\"\<R\>\"", " ", "<>", " ", "myProblemId", 
+    " ", "<>", " ", "\"\<.csv\>\""}], ",", " ", "R", ",", " ", 
+   "\"\<CSV\>\""}], "]"}]], "Input",
+ CellChangeTimes->{{3.6253241858021493`*^9, 3.625324189882313*^9}, {
+  3.6253242475753574`*^9, 3.6253242678187623`*^9}}],
+
+Cell[BoxData["\<\"C:\\\\DATADIR\\\\Programmazione\\\\java\\\\joptimizer\\\\\
+src\\\\test\\\\resources\\\\factorization\\\\R16.csv\"\>"], "Output",
+ CellChangeTimes->{
+  3.625324197993637*^9, {3.6253242561465287`*^9, 3.6253242748509054`*^9}}]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{1268, 871},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+PrivateNotebookOptions->{"VersionedStylesheet"->{"Default.nb"[8.] -> False}},
+FrontEndVersion->"9.0 for Microsoft Windows (64-bit) (January 25, 2013)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[579, 22, 81, 3, 99, "Subtitle"],
+Cell[CellGroupData[{
+Cell[685, 29, 299, 6, 60, "Input"],
+Cell[987, 37, 204, 2, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1228, 44, 450, 12, 60, "Input"],
+Cell[1681, 58, 94, 1, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1812, 64, 456, 17, 60, "Input"],
+Cell[2271, 83, 92, 1, 38, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2400, 89, 165, 3, 60, "Input"],
+Cell[2568, 94, 74, 1, 36, "Output"],
+Cell[2645, 97, 74, 1, 36, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2756, 103, 360, 8, 36, "Input"],
+Cell[3119, 113, 241, 3, 36, "Output"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
