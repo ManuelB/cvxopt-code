@@ -13,14 +13,14 @@ package com.joptimizer.algebra;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.joptimizer.util.ColtUtils;
-
 import cern.colt.function.IntIntDoubleFunction;
 import cern.colt.matrix.DoubleFactory1D;
 import cern.colt.matrix.DoubleFactory2D;
 import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
+
+import com.joptimizer.util.ColtUtils;
 
 
 /**
@@ -50,7 +50,7 @@ public class Matrix1NormRescaler implements MatrixRescaler{
 	 */
 	public DoubleMatrix1D[] getMatrixScalingFactors(DoubleMatrix2D A){
 		DoubleFactory1D F1 = DoubleFactory1D.dense;
-		DoubleFactory2D F2 = DoubleFactory2D.sparse;
+		//DoubleFactory2D F2 = DoubleFactory2D.sparse;
 		Algebra ALG = Algebra.DEFAULT;
 		int r = A.rows();
 		int c = A.columns();
@@ -66,17 +66,17 @@ public class Matrix1NormRescaler implements MatrixRescaler{
 		for(int k=0; k<=maxIteration; k++){
 			double normR = -Double.MAX_VALUE;
 			double normC = -Double.MAX_VALUE;
-			for(int i=0; i<r; i++){
+			for (int i = 0; i < r; i++) {
 				double dri = ALG.normInfinity(AK.viewRow(i));
 				DR.setQuick(i, Math.sqrt(dri));
-				DRInv.setQuick(i, 1./Math.sqrt(dri));
-				normR = Math.max(normR, Math.abs(1-dri));
+				DRInv.setQuick(i, 1. / Math.sqrt(dri));
+				normR = Math.max(normR, Math.abs(1 - dri));
 			}
-			for(int j=0; j<c; j++){
+			for (int j = 0; j < c; j++) {
 				double dci = ALG.normInfinity(AK.viewColumn(j));
 				DC.setQuick(j, Math.sqrt(dci));
-				DCInv.setQuick(j, 1./Math.sqrt(dci));
-				normC = Math.max(normC, Math.abs(1-dci));
+				DCInv.setQuick(j, 1. / Math.sqrt(dci));
+				normC = Math.max(normC, Math.abs(1 - dci));
 			}
 			
 			log.debug("normR: " + normR);
@@ -120,7 +120,7 @@ public class Matrix1NormRescaler implements MatrixRescaler{
 	public DoubleMatrix1D getMatrixScalingFactorsSymm(DoubleMatrix2D A) {
 		DoubleFactory1D F1 = DoubleFactory1D.dense;
 		DoubleFactory2D F2 = DoubleFactory2D.sparse;
-		Algebra ALG = Algebra.DEFAULT;
+		//Algebra ALG = Algebra.DEFAULT;
 		int dim = A.columns();
 		DoubleMatrix1D D1 = F1.make(dim, 1);
 		DoubleMatrix2D AK = A.copy();
@@ -134,9 +134,9 @@ public class Matrix1NormRescaler implements MatrixRescaler{
 				//double dri = ALG.normInfinity(AK.viewRow(i));
 				double dri = this.getRowInfinityNorm(AK, i);
 				DR.setQuick(i, i, Math.sqrt(dri));
-				DRInv.setQuick(i, 1./Math.sqrt(dri));
-				normR = Math.max(normR, Math.abs(1-dri));
-				if(Double.isNaN(normR)){
+				DRInv.setQuick(i, 1. / Math.sqrt(dri));
+				normR = Math.max(normR, Math.abs(1 - dri));
+				if (Double.isNaN(normR)) {
 					throw new IllegalArgumentException("matrix is singular");
 				}
 			}
@@ -146,17 +146,17 @@ public class Matrix1NormRescaler implements MatrixRescaler{
 				break;
 			}
 			
-			for(int i=0; i<dim; i++){
+			for (int i = 0; i < dim; i++) {
 				double prevD1I = D1.getQuick(i);
 				double newD1I = prevD1I * DRInv.getQuick(i);
 				D1.setQuick(i, newD1I);
 			}
-			//logger.debug("D1: " + ArrayUtils.toString(D1.toArray()));
-			
-			if(k==maxIteration){
+			// logger.debug("D1: " + ArrayUtils.toString(D1.toArray()));
+
+			if (k == maxIteration) {
 				log.warn("max iteration reached");
 			}
-			
+
 			AK = ColtUtils.diagonalMatrixMult(DRInv, AK, DRInv);
 		}
 		

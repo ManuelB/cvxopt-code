@@ -63,17 +63,17 @@ public class SOCPLogarithmicBarrier implements BarrierFunction {
 		RealVector x = new ArrayRealVector(X);
 		
 		RealVector ret = new ArrayRealVector(dim);
-		for(int i=0; i<socpConstraintParametersList.size(); i++){
+		for (int i = 0; i < socpConstraintParametersList.size(); i++) {
 			SOCPConstraintParameters param = socpConstraintParametersList.get(i);
 			double t = this.buildT(param, x);
 			RealVector u = this.buildU(param, x);
-			double t2uu = t*t - u.dotProduct(u);
+			double t2uu = t * t - u.dotProduct(u);
 			RealMatrix Jacob = this.buildJ(param, x);
 			int k = u.getDimension();
-			RealVector G = new ArrayRealVector(k+1);
+			RealVector G = new ArrayRealVector(k + 1);
 			G.setSubVector(0, u);
 			G.setEntry(k, -t);
-			RealVector ret_i = Jacob.operate(G).mapMultiply((2./t2uu));
+			RealVector ret_i = Jacob.operate(G).mapMultiply((2. / t2uu));
 			ret = ret.add(ret_i);
 		}
 		
@@ -183,12 +183,18 @@ public class SOCPLogarithmicBarrier implements BarrierFunction {
 	 * 
 	 * @param param SOCPConstraintParameters instance
 	 * @param X evaluation point
-	 * @return u = A.x + b
+	 * @return U = A.x + b
 	 */
 	private RealVector buildU(SOCPConstraintParameters param, RealVector X){
 		return param.getA().operate(X).add(param.getB());
 	}
 	
+	/**
+	 * 
+	 * @param param SOCPConstraintParameters instance
+	 * @param X evaluation point
+	 * @return
+	 */
 	private RealMatrix buildJ(SOCPConstraintParameters param, RealVector X){
 		RealMatrix J = new Array2DRowRealMatrix(dim, param.getA().getRowDimension()+1);
 		J.setSubMatrix(param.getA().transpose().getData(), 0, 0);
@@ -197,7 +203,7 @@ public class SOCPLogarithmicBarrier implements BarrierFunction {
 	}
 	
 	/**
-	 * The definition of a socp inequality constraint in the form of:
+	 * The definition of a SOCP inequality constraint in the form of:
 	 * <br/>||A.x+b|| < c.x+d
 	 *
 	 */

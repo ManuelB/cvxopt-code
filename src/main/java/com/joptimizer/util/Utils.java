@@ -12,13 +12,22 @@ package com.joptimizer.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
@@ -32,9 +41,6 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.linalg.Algebra;
 import cern.jet.math.Functions;
-
-import com.Ostermiller.util.CSVParser;
-import com.Ostermiller.util.CSVPrinter;
 
 /**
  * @author alberto trivellato (alberto.trivellato@gmail.com)
@@ -343,9 +349,9 @@ public class Utils {
 	}
 	
 	public static final void writeDoubleArrayToFile(double[] v, String fileName) throws Exception {
-		CSVPrinter csvPrinter = new CSVPrinter(new FileOutputStream(new File(fileName)));
-		DecimalFormat df = new DecimalFormat("#");
-        df.setMaximumFractionDigits(16);
+		DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+		df.applyPattern("#");
+		df.setMaximumFractionDigits(16);
 		String[][] ret = new String[v.length][1];
 		for(int j=0; j<v.length; j++){
 			if(Double.isNaN(v[j])){
@@ -355,14 +361,18 @@ public class Utils {
 				//ret[j][0] = String.valueOf(v[j]);
 			}
 		}
-		csvPrinter.println(ret);
+		CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(fileName), CSVFormat.DEFAULT.withDelimiter(','));
+		try{
+			csvPrinter.printRecords(ret);
+		}finally{
+			csvPrinter.close();
+		}
 	}
 	
 	public static final void writeDoubleMatrixToFile(double[][] m, String fileName) throws Exception {
-		CSVPrinter csvPrinter = new CSVPrinter(new FileOutputStream(new File(fileName)));
-		DecimalFormat df = new DecimalFormat("#");
-        df.setMaximumFractionDigits(16);
-		csvPrinter.changeDelimiter(",".charAt(0));
+		DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(Locale.US);
+		df.applyPattern("#");
+		df.setMaximumFractionDigits(16);
 		String[][] ret = new String[m.length][];
 		for(int i=0; i<m.length; i++){
 			double[] MI = m[i];
@@ -377,31 +387,34 @@ public class Utils {
 			}
 			ret[i] = retI;
 		}
-		csvPrinter.println(ret);
+		CSVPrinter csvPrinter = new CSVPrinter(new FileWriter(fileName), CSVFormat.DEFAULT.withDelimiter(','));
+		try{
+			csvPrinter.printRecords(ret);
+		}finally{
+			csvPrinter.close();
+		}
 	}
 	
 	public static final double[] loadDoubleArrayFromFile(String classpathFileName) throws Exception {
 		//FileReader fr = new FileReader(classpathFileName);
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(classpathFileName);
-		CSVParser parser = new CSVParser(is, ',');
-		parser.setCommentStart("#");
-		String[][] mapMatrix = parser.getAllValues();
-		double[] v = new double[mapMatrix.length];
-		for(int i=0; i<mapMatrix.length; i++){
-			v[i] = Double.parseDouble(mapMatrix[i][0]);
+		CSVParser parser = new CSVParser(new InputStreamReader(is), CSVFormat.DEFAULT.withDelimiter(',').withCommentMarker('#'));
+		List<CSVRecord> records = parser.getRecords();
+		double[] v = new double[records.size()];
+		for(int i=0; i<records.size(); i++){
+			v[i] = Double.parseDouble(records.get(i).get(0));
 		}
 		return v;
 	}
 	
 	public static final double[][] loadDoubleMatrixFromFile(String classpathFileName, char fieldSeparator) throws Exception {
 		InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(classpathFileName);
-		CSVParser parser = new CSVParser(is, fieldSeparator);
-		parser.setCommentStart("#");
-		String[][] mapMatrix = parser.getAllValues();
-		double[][] m = new double[mapMatrix.length][mapMatrix[0].length];
-		for(int i=0; i<mapMatrix.length; i++){
-			for(int j=0; j<mapMatrix[0].length; j++){
-				m[i][j] = Double.parseDouble(mapMatrix[i][j]);
+		CSVParser parser = new CSVParser(new InputStreamReader(is), CSVFormat.DEFAULT.withDelimiter(fieldSeparator).withCommentMarker('#'));
+		List<CSVRecord> records = parser.getRecords();
+		double[][] m = new double[records.size()][records.get(0).size()];
+		for(int i=0; i<records.size(); i++){
+			for(int j=0; j<records.get(0).size(); j++){
+				m[i][j] = Double.parseDouble(records.get(i).get(j));
 			}
 		}
 		return m;
